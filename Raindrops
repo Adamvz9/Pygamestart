@@ -1,0 +1,75 @@
+import pygame, sys
+import random
+
+pygame.init()
+pygame.display.set_caption("Hello World")
+screen = pygame.display.set_mode((1080,960))
+clock = pygame.time.Clock()
+xpos = random.randint(0,screen.get_size()[0])
+ypos = random.randint(0,screen.get_size()[1])
+moving_down = True
+raindrop_speed = 1
+
+class Raindrop:
+    def __init__(self, xpos, ypos):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.raindrop_y = 0
+        self.raindrop_speed = 1
+
+    def Move(self):
+        self.ypos += self.raindrop_speed
+        self.raindrop_speed += 1
+        if self.ypos > list(screen.get_size()) [1]:
+            self.ypos = 0
+            self.raindrop_speed = 1
+
+    def draw(self):
+        pygame.draw.circle(screen, ("Blue"), (self.xpos, self.ypos), 5)
+
+
+
+drops = []
+for x in range(10):
+    random_x = random.randrange(0, screen.get_size()[0])
+    random_y = random.randrange(0, screen.get_size()[1])
+    drops.append(Raindrop(random_x, random_y))
+
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        #if event.type == pygame.KEYDOWN and event.key == pygame.K_0:
+               # moving_down= True
+        #if event.type == pygame.KEYUP and event.key == pygame.K_0:
+                #moving_down = False
+    # background
+    screen.fill("Pink")
+    print(screen.get_size())
+    for drop in drops:
+        drop.draw()
+        drop.Move()
+
+    #raindrop
+   # centre_x = list(screen.get_size())[0] / 2
+  #  circle = pygame.draw.circle(screen, ("Grey"), (centre_x, ypos), 10, 0)
+   # ypos += raindrop_speed
+   # raindrop_speed += 1
+
+   # if ypos > list(screen.get_size())[1]:
+    #    ypos = 0
+     #   raindrop_speed = 1
+
+
+    # keys
+  #  pressed_key = pygame.key.get_pressed()
+    #if pressed_key[pygame.K_RIGHT]:
+      #  xpos += 1
+   # if moving_down:
+        #ypos += 2
+
+    pygame.display.update()
+    clock.tick(60)
+
+
+
