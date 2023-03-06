@@ -1,0 +1,158 @@
+import pygame, sys
+import random
+pygame.font.get_fonts()
+
+from sys import exit
+pygame.mixer.pre_init()
+pygame.init()
+pygame.display.set_caption("Hello World")
+screen = pygame.display.set_mode((1080,960))
+clock = pygame.time.Clock()
+xpos = random.randint(0,screen.get_size()[0])
+ypos = random.randint(0,screen.get_size()[1])
+moving_down = True
+raindrop_speed = 1
+
+
+cloud_image = pygame.image.load('cloud.png').convert_alpha()
+cloud_image = pygame.transform.rotozoom(cloud_image, 0,0.5)
+cloud_x = 400
+cloud_y = 0
+umbrella = pygame.image.load('umbrella.png').convert_alpha()
+umbrella.set_colorkey((255,255,255))
+man_rect = umbrella.get_rect(topleft = (540,650))
+no_umbrella = pygame.image.load('noumbrella.png').convert()
+
+
+interact = pygame.mixer.Sound("8bit_bomb_explosion.wav")
+
+background = pygame.image.load("download.jfif").convert_alpha()
+w,h = background.get_size()
+y = 0
+y1 = -h
+background = pygame.transform.rotozoom(background, 0, 3)
+
+def rollingbackgrnd():
+    global y,y1,h
+    screen.blit(background,(0,y))
+    screen.blit(background,(0,y1))
+    y += 1
+    y1 += 1
+
+    if y > h:
+        y = -h
+    if y1 > h:
+        y1 = -h
+
+
+
+#Score system
+score = 0
+
+font = pygame.font.Font(None,20)
+
+def increment_score():
+    global score
+    score = score + 1
+    print(score)
+    screen.blit(font.render("score" + str(score), True, (255, 255, 255)), (540, 480))
+
+
+
+
+
+class Raindrop:
+    def __init__(self, xpos, ypos):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.raindrop_y = 0
+        self.raindrop_speed = 1
+        self.size = random.randrange(3,5)
+
+
+        #Collision
+        self.rect = pygame.Rect(self.xpos, self.ypos, self.size, self.size)
+        self.active = True
+
+    def Move(self):
+        self.ypos += self.raindrop_speed
+        self.rect.y = self.ypos
+        self.rect.x = self.xpos
+        self.raindrop_speed += 1
+        screen.blit(font.render("score" + str(score), True, (0, 0, 0)), (540, 480))
+
+
+        if self.rect.colliderect(man_rect):
+            print("Colide with man")
+            if self.active:
+                increment_score()
+                interact.play()
+
+            self.active = False
+
+
+        if self.ypos > list(screen.get_size()) [1]:
+            self.raindrop_speed = 1
+            range = cloud_image.get_size()[0]
+            self.xpos = random.randrange(cloud_x, cloud_x + range)
+            self.ypos = random.randrange(cloud_y, cloud_y + range)
+            self.active = True
+
+
+    def draw(self):
+       if self.active:
+           pygame.draw.circle(screen, ("Blue"), (self.xpos, self.ypos), 5)
+
+
+
+drops = []
+for x in range(10):
+    range_x = cloud_image.get_size()[0]
+    random_x = random.randrange(cloud_x, cloud_x + range_x)
+    random_y = cloud_y + 200
+    drops.append(Raindrop(random_x, random_y))
+
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        #if event.type == pygame.KEYDOWN and event.key == pygame.K_0:
+                #moving_down= True
+        #if event.type == pygame.KEYUP and event.key == pygame.K_0:
+                #moving_down = False
+
+
+
+    # background
+    screen.fill("Pink")
+    rollingbackgrnd()
+    print(screen.get_size())
+    for drop in drops:
+        drop.draw()
+        drop.Move()
+
+    #raindrop
+   # centre_x = list(screen.get_size())[0] / 2
+  #  circle = pygame.draw.circle(screen, ("Grey"), (centre_x, ypos), 10, 0)
+   # ypos += raindrop_speed
+   # raindrop_speed += 1
+
+   # if ypos > list(screen.get_size())[1]:
+    #    ypos = 0
+     #   raindrop_speed = 1
+
+
+     #keys
+    #pressed_key = pygame.key.get_pressed()
+    #if pressed_key[pygame.K_RIGHT]:
+        #xpos += 1
+    #if moving_down:
+        #ypos += 2
+
+    screen.blit(cloud_image, (cloud_x,cloud_y))
+    screen.blit(umbrella,  man_rect)
+
+
+    pygame.display.update()
+    clock.tick(60)
